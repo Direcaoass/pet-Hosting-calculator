@@ -7,18 +7,15 @@ const NextBtn = document.getElementById("next");
 const CalculateBtn = document.getElementById("calculate");
 
 const totalDaysElem = document.getElementById("total-days");
-const CostPetElem = document.getElementById("total-cost-pet");
-const totalCost= document.getElementById("total-cost");
+const checkInOutput = document.getElementById("checkin");
+const checkOutOutput = document.getElementById("checkout");
+const totalCost = document.getElementById("total-cost");
+const totalCostDay = document.getElementById("total-cost-day");
 const petSizeContainer = document.getElementById("pet-size-container");
-const petArray = [];
+let petArray = [];
 
 
-NextBtn.addEventListener("click", () => ShowSizeOptions())
-CalculateBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  addPetToArray();
-  PetCostCalc();
-})
+//functions
 
 const ShowSizeOptions = () => {
   let sizeOptions = "";
@@ -44,6 +41,7 @@ const PetCreate = (name, size, cost) => {
 }
 
 const addPetToArray = () => {
+  petArray = [];
   for (let i = 1; i <= petQtdInput.value; i++) {
     let petName = `Pet${i}`
     let petSize = document.querySelector(`input[name="petSize-${i}"]:checked`).value
@@ -52,16 +50,17 @@ const addPetToArray = () => {
 }
 
 
-
-const PetCostCalc = () => {
+const setPetCost = () => {
   const checkInDate = new Date(checkInDateInput.value);
   const checkOutDate = new Date(checkOutDateInput.value);
   const totalDays = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-  totalDaysElem.innerHTML = `Total de pernoites: ${totalDays}`;
+  console.log(checkInDate)
+  console.log(checkOutDate)
+
 
   for (let pet of petArray) {
 
-    if (pet.size === "big") {
+    if (pet.size === "big" & totalDays === 1) {
       pet.cost = 75;
       if (totalDays === 2) {
         pet.cost = 70 * totalDays;
@@ -70,7 +69,8 @@ const PetCostCalc = () => {
       } else if (totalDays >= 10) {
         pet.cost = 60 * totalDays;
       }
-    } else {
+    }
+    else if (pet.size === "small" & totalDays === 1) {
       pet.cost = 65;
       if (totalDays === 2) {
         pet.cost = 60 * totalDays;
@@ -80,25 +80,54 @@ const PetCostCalc = () => {
         pet.cost = 50 * totalDays;
       }
     }
+
   }
-  console.log(petArray)
-  GetDiscount();
+  applyDiscount();
+  setTotalCost(checkInDate,checkOutDate,totalDays);
+
 }
 
-const GetDiscount = () => {
+const setTotalCost = (checkInDate,checkOutDate,totalDays) => {
+  let totalCost = 0
+  for (let pet of petArray) {
+    totalCost += pet.cost;
+  }
+
+  const totalPerDay = totalCost / totalDays
+  showOutput(checkInDate, checkOutDate, totalDays, totalPerDay, totalCost)
+
+}
+
+const applyDiscount = () => {
   if (petArray.length > 1) {
     petArray.sort((a, b) => (a.size > b.size ? -1 : 1));
 
-    for (let i = 0; i < petArray.length; i++) {
+    for (let i = 1; i < petArray.length; i++) {
       petArray[i].cost = petArray[i].cost * .9
     }
-    console.log(petArray)
   }
-  else return petArray
+}
+
+
+const showOutput = (checkIn, checkOut, totalDays, totalPerDay, totalGlobal) => {
+ 
+   let checkInFormated = ((checkIn.getDate())) + "/" + ((checkIn.getMonth() + 1)) + "/" + checkIn.getFullYear();
+   let checkOutFormated = ((checkOut.getDate())) + "/" + ((checkOut.getMonth() + 1)) + "/" + checkOut.getFullYear();
+  checkInOutput.innerHTML = `Check-in:${checkInFormated}`;
+  checkOutOutput.innerHTML = `Check-out:${checkOutFormated}`;
+  totalDaysElem.innerHTML = `Total de pernoites :${totalDays}`;
+  totalCostDay.innerHTML = `Total por dia : R$${totalPerDay}`;
+  totalCost.innerHTML = `Total Geral: R$${totalGlobal}`;
 
 }
- 
 
 
+//Events
 
+NextBtn.addEventListener("click", () => ShowSizeOptions())
 
+CalculateBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  addPetToArray();
+  setPetCost();
+})
