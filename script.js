@@ -54,10 +54,7 @@ const setPetCost = () => {
   const checkInDate = new Date(checkInDateInput.value);
   const checkOutDate = new Date(checkOutDateInput.value);
   const totalDays = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-  console.log(checkInDate)
-  console.log(checkOutDate)
-
-
+  
   for (let pet of petArray) {
 
     if (pet.size === "big" & totalDays === 1) {
@@ -83,11 +80,11 @@ const setPetCost = () => {
 
   }
   applyDiscount();
-  setTotalCost(checkInDate,checkOutDate,totalDays);
+  setTotalCost(checkInDate,checkOutDate, totalDays);
 
 }
 
-const setTotalCost = (checkInDate,checkOutDate,totalDays) => {
+const setTotalCost = (checkInDate, checkOutDate, totalDays) => {
   let totalCost = 0
   for (let pet of petArray) {
     totalCost += pet.cost;
@@ -110,11 +107,18 @@ const applyDiscount = () => {
 
 
 const showOutput = (checkIn, checkOut, totalDays, totalPerDay, totalGlobal) => {
- 
-   let checkInFormated = ((checkIn.getDate())) + "/" + ((checkIn.getMonth() + 1)) + "/" + checkIn.getFullYear();
-   let checkOutFormated = ((checkOut.getDate())) + "/" + ((checkOut.getMonth() + 1)) + "/" + checkOut.getFullYear();
-  checkInOutput.innerHTML = `Check-in:${checkInFormated}`;
-  checkOutOutput.innerHTML = `Check-out:${checkOutFormated}`;
+
+  const checkInDateGMT= new Date(checkIn).toISOString().slice(0, 19) + "-03:00";
+  const checkOutDateGMT= new Date(checkOut).toISOString().slice(0, 19) + "-03:00";
+  const checkInDate = new Date(checkInDateGMT);
+  const checkOutDate = new Date(checkOutDateGMT);
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  const formattedCheckin = checkInDate.toLocaleDateString('pt-BR', options);
+  const formattedCheckout = checkOutDate.toLocaleDateString('pt-BR', options);
+
+
+  checkInOutput.innerHTML = `Check-in:${formattedCheckin}`;
+  checkOutOutput.innerHTML = `Check-out:${formattedCheckout}`;
   totalDaysElem.innerHTML = `Total de pernoites :${totalDays}`;
   totalCostDay.innerHTML = `Total por dia : R$${totalPerDay}`;
   totalCost.innerHTML = `Total Geral: R$${totalGlobal}`;
